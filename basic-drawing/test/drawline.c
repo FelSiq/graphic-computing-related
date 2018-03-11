@@ -27,6 +27,11 @@ int main(int argc, char *argv[]) {
 	if (m) {
 		int x1 = atoi(argv[X1]), x2 = atoi(argv[X2]);
 		int y1 = atoi(argv[Y1]), y2 = atoi(argv[Y2]);
+		
+		if (0 > x1 || x1 >= colnum || 0 > x2 || x2 >= colnum || 0 > y1 || y1 >= rownum || 0 > y2 || y2 >= rownum) {
+			printf("Invalid coordinates. Exiting...\n");
+			exit(2);
+		}
 
 		#ifdef DEBUG
 			printf("Successfully inited matrix. Now started to draw line...\n");
