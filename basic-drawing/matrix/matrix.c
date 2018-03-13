@@ -22,9 +22,9 @@ int mat_purge(mattype **m, unsigned int rownum) {
 }
 
 void mat_print(mattype **m, unsigned int rownum, unsigned int colnum) {
-	for (register unsigned int i = 0; i < rownum; ++i) { 
+	for (register unsigned int i = rownum; i > 0; --i) { 
 		for (register unsigned int j = 0; j < colnum; ++j)
-			printf("%u", (unsigned int) m[i][j]);
+			printf("%u", (unsigned int) m[i-1][j]);
 		printf("\n");
 	}
 }
