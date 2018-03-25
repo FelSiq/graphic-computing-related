@@ -73,7 +73,8 @@ class Polygon:
 					i = 0
 					while i < n:
 						for j in range(math.ceil(AET[i][ETindex.xmin]), math.floor(AET[i+1][ETindex.xmin])):
-							self.img.put(color, (j + self.xOffset, yCur + self.yOffset))
+							if j + self.xOffset >= 0 and yCur + self.yOffset >= 0:
+								self.img.put(color, (j + self.xOffset, yCur + self.yOffset))
 						i += 2
 					# Update x's
 					for i in range(n):
