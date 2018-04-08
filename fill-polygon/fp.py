@@ -1,3 +1,4 @@
+#!/usr/bin/python3m
 import math
 import tkinter as tk
 from enum import IntEnum
@@ -45,7 +46,7 @@ class Polygon:
 				AET[yA].append([yB, xA, m_inv])
 		return AET
 	
-	def fill(self, color="#ff0000"):
+	def fill(self, color="#ff0000", printAET=False):
 		if self.polygon:
 			minY = min(self.polygon, key=lambda k: min(k[1], k[3]))
 			maxY = max(self.polygon, key=lambda k: max(k[1], k[3]))
@@ -56,7 +57,7 @@ class Polygon:
 			ET = self.__fillAET__(minY, maxY)
 			AET = []
 			yCur = minY
-
+			counter = 0
 			while len(AET) or len(ET):
 				newVertices = ET.pop(yCur)
 				for v in  newVertices:
@@ -67,12 +68,23 @@ class Polygon:
 						aux.append(AET[i])
 				AET = aux 		
 				n = len(AET)
+
+				if printAET:
+					print(counter, ':', end=' ')
+					par = 0
+					for o in AET:
+						print('[', o[0], math.floor(o[1]) if par else math.ceil(o[1]), 
+							round(o[2], 2), end= ']')
+						par = not par
+					print()
+					counter += 1
+
 				if n:
 					AET.sort(key=lambda k: k[ETindex.xmin])
 					# Draw
 					i = 0
 					while i < n:
-						for j in range(math.ceil(AET[i][ETindex.xmin]), math.floor(AET[i+1][ETindex.xmin])):
+						for j in range(math.ceil(AET[i][ETindex.xmin]), math.ceil(AET[i+1][ETindex.xmin])):
 							if j + self.xOffset >= 0 and yCur + self.yOffset >= 0:
 								self.img.put(color, (j + self.xOffset, yCur + self.yOffset))
 						i += 2
