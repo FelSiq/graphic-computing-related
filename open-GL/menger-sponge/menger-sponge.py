@@ -20,17 +20,18 @@ def setup():
 	glEnable(GL_DEPTH_TEST)
 	glClearColor(0, 0, 0, 0)
 
-def drawObject(edgeSize):
+def drawObject(edgeSize, recCallsNum):
 	"""
 	The "object" is a collection of 20 cubes.
 	"""
+	tMatrix = glGetFloatv(GL_MODELVIEW_MATRIX)
 	shiftCoords = [-edgeSize, 0, edgeSize]
 	for i in shiftCoords:
 		for j in shiftCoords:
 			for k in shiftCoords:
 				if abs(i) + abs(j) + abs(k) >= 2.0*edgeSize:
 					glColor3f(abs(j/1.5-i), abs(k/1.5-j), abs(i/1.5-k))
-					glLoadIdentity()
+					glLoadMatrixf(tMatrix)
 					glOrtho(2, -2, 2, -2, 2, -100)
 					glRotatef(OBJECT_ANGLE, 1, 1, 1)
 					glTranslatef(i, j, k)
@@ -40,10 +41,10 @@ def drawObject(edgeSize):
 def rotateObject(value):
 	global OBJECT_ANGLE
 	OBJECT_ANGLE += ROTATE_INCREMENT
-	display()
-	glutTimerFunc(ROTATE_TIMER, rotateObject, 0)
+	display(value)
+	glutTimerFunc(ROTATE_TIMER, rotateObject, value)
 
-def display():
+def display(recCallsNum=5):
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT)
 	glViewport(
 		VIEW_SHIFT_X, 
@@ -51,12 +52,13 @@ def display():
 		VIEW_SIZE_W, 
 		VIEW_SIZE_H)
 	glColor3f(1, 1, 1)
-	drawObject(0.5)
+	glLoadIdentity()
+	drawObject(0.5, recCallsNum)
 	glFlush()
 
 if __name__ == '__main__':
 	setup()
 	glutDisplayFunc(display)
-	rotateObject(0)
+	rotateObject(5)
 	glutMainLoop()
 
