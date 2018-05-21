@@ -34,7 +34,7 @@ DRAW_FACES_SEQ = [
 
 def setup():
 	glutInit()
-	glutInitDisplayMode(GLUT_SINGLE | GLUT_RGB | GLUT_DEPTH)
+	glutInitDisplayMode(GLUT_DOUBLE | GLUT_RGB | GLUT_DEPTH)
 	glutInitWindowSize(WINDOW_SIZE_W, WINDOW_SIZE_H)
 	glutCreateWindow('Menger Sponge using OpenGL')
 	glEnable(GL_DEPTH_TEST)
@@ -77,13 +77,13 @@ def drawCube(edge, draw=(1, 1, 1, 1, 1, 1)):
 		glVertex3f( he,  he,  he)
 		glVertex3f( he,  he, -he)
 
-	if draw[5]:	
+	if draw[4]:	
 		glVertex3f(-he, -he, -he)
 		glVertex3f(-he, -he,  he)
 		glVertex3f( he, -he,  he)
 		glVertex3f( he, -he, -he)
 
-	if draw[4]:	
+	if draw[5]:	
 		glVertex3f(-he,  he, -he)
 		glVertex3f(-he,  he,  he)
 		glVertex3f( he,  he,  he)
@@ -131,7 +131,7 @@ def display(recCallsNum=0):
 	glOrtho(2, -2, 2, -2, 2, -100)
 	drawObject(0.75, recCallsNum)
 	renderText(recCallsNum)
-	glFlush()
+	glutSwapBuffers()
 
 if __name__ == '__main__':
 	if len(sys.argv) < 2:
