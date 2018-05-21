@@ -43,7 +43,7 @@ def display():
 	glViewport(0, 0, 640, 480)
 	gluLookAt(0, 0, 1, 0, 0, 0, 0, 1, 0)
 	glRotatef(angle, 1, 1, 1)
-	glutSolidCube(1.5)
+	glutSolidCube(1.2)
 
 	glFlush()
 
