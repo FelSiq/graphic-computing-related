@@ -8,6 +8,29 @@ WINDOW_SIZE_H=640
 OBJECT_ANGLE=0
 ROTATE_INCREMENT=1
 ROTATE_TIMER=30
+# 	 t, d, l, r, f, b
+DRAW_FACES_SEQ = [
+	(0, 1, 1, 0, 1, 0), # -x -y -z
+	(0, 0, 1, 1, 1, 1), # -x -y oz
+	(1, 0, 1, 0, 1, 0), # -x -y +z
+	(1, 1, 1, 1, 0, 0), # -x oy -z
+	(1, 1, 1, 1, 0, 0), # -x oy +z
+	(0, 1, 1, 0, 0, 1), # -x +y -z
+	(0, 0, 1, 1, 1, 1), # -x +y oz
+	(1, 0, 1, 0, 0, 1), # -x +y +z
+	(1, 1, 0, 0, 1, 1), # ox -y -z
+	(1, 1, 0, 0, 1, 1), # ox -y +z
+	(1, 1, 0, 0, 1, 1), # ox +y -z
+	(1, 1, 0, 0, 1, 1), # ox +y +z
+	(0, 1, 0, 1, 1, 0), # +x -y -z
+	(0, 0, 1, 1, 1, 1), # +x -y oz
+	(1, 0, 0, 1, 1, 0), # +x -y +z
+	(1, 1, 1, 1, 0, 0), # +x oy -z
+	(1, 1, 1, 1, 0, 0), # +x oy +z
+	(0, 1, 0, 1, 0, 1), # +x +y -z
+	(0, 0, 1, 1, 1, 1), # +x +y oz
+	(1, 0, 0, 1, 0, 1), # +x +y +z
+]
 
 def setup():
 	glutInit()
@@ -25,10 +48,55 @@ def renderText(deepness):
 	for ch in text:
 		glutBitmapCharacter(GLUT_BITMAP_9_BY_15, ord(ch))
 
+# top, down, left, right, front, back
+def drawCube(edge, draw=(1, 1, 1, 1, 1, 1)):
+	he = edge/2
+	glBegin(GL_QUADS)
+
+	if draw[1]:
+		glVertex3f( he, -he, -he)
+		glVertex3f( he,  he, -he)
+		glVertex3f(-he,  he, -he)
+		glVertex3f(-he, -he, -he)
+
+	if draw[0]:	
+		glVertex3f( he,  he,  he)
+		glVertex3f( he, -he,  he)
+		glVertex3f(-he, -he,  he)
+		glVertex3f(-he,  he,  he)
+
+	if draw[2]:	
+		glVertex3f(-he, -he, -he)
+		glVertex3f(-he, -he,  he)
+		glVertex3f(-he,  he,  he)
+		glVertex3f(-he,  he, -he)
+
+	if draw[3]:	
+		glVertex3f( he, -he, -he)
+		glVertex3f( he, -he,  he)
+		glVertex3f( he,  he,  he)
+		glVertex3f( he,  he, -he)
+
+	if draw[5]:	
+		glVertex3f(-he, -he, -he)
+		glVertex3f(-he, -he,  he)
+		glVertex3f( he, -he,  he)
+		glVertex3f( he, -he, -he)
+
+	if draw[4]:	
+		glVertex3f(-he,  he, -he)
+		glVertex3f(-he,  he,  he)
+		glVertex3f( he,  he,  he)
+		glVertex3f( he,  he, -he)
+
+	glEnd()
+
 def drawObject(edgeSize, recCallsNum, ti=0, tj=0, tk=0):
 	"""
 	The "object" is a collection of 20 cubes.
 	"""
+	global DRAW_FACES_SEQ
+	counter=0
 	tMatrix = glGetFloatv(GL_MODELVIEW_MATRIX)
 	shiftCoords = [-edgeSize, 0, edgeSize]
 	for i in shiftCoords:
@@ -47,8 +115,8 @@ def drawObject(edgeSize, recCallsNum, ti=0, tj=0, tk=0):
 					else:
 						glRotatef(OBJECT_ANGLE, 1, 1, 1)
 						glTranslatef(ti+i, tj+j, tk+k)
-						glutSolidCube(edgeSize)
-	
+						drawCube(edgeSize, DRAW_FACES_SEQ[counter])
+						counter += 1
 
 def rotateObject(value):
 	global OBJECT_ANGLE
