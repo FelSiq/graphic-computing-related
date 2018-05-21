@@ -41,7 +41,7 @@ def setup():
 	glClearColor(0, 0, 0, 0)
 
 def renderText(deepness):
-	text = 'Deepness:' + str(deepness)
+	text = 'Deepness:' + str(1+deepness)
 	glColor3f(0.75, 0.75, 0.1)
 	glLoadIdentity()
 	glRasterPos2f(-0.95, -0.95)
@@ -135,20 +135,20 @@ def display(recCallsNum=0):
 
 if __name__ == '__main__':
 	if len(sys.argv) < 2:
-		print('usage:', sys.argv[0], '<depth between 0 and 10>')
+		print('usage:', sys.argv[0], '< depth between 1 and 10 >')
 		exit(1)
 	try:
-		deepness = int(sys.argv[1])
-		if not (0 <= deepness <= 10):
+		deepness = int(sys.argv[1])-1
+		if not (0 <= deepness <= 9):
 			raise Exception()
 	except:
-		print('Depth parameter must be a integer between 0 and 10.')
+		print('Depth parameter must be a integer between 1 and 10.')
 		exit(2)
 
 	print('Started rendering process. This may take a while...')
 	setup()
 
-	if deepness > 2:
+	if deepness > 3:
 		print('Warning: disabling rotation to improve performance.')
 		OBJECT_ANGLE=30
 		display(deepness)
