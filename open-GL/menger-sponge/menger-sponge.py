@@ -9,10 +9,10 @@ OBJECT_Y_ANGLE=0
 OBJECT_Z_ANGLE=0
 ROTATE_INCREMENT=1
 UPDATE_TIMER=30
-CURRENT_DEPTH=2
+CURRENT_DEPTH=1
 MAX_DEPTH=5
-ZOOM_VALUE=0
-ZOOM_INCREMENT=1
+ZOOM_VALUE=0.75
+ZOOM_INCREMENT=0.025
 # 	 t, d, l, r, f, b
 DRAW_FACES_SEQ = [
 	(0, 1, 1, 0, 1, 0), # -x -y -z
@@ -150,10 +150,9 @@ def display(value):
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT)
 	glLoadIdentity()
 	glOrtho(2, -2, 2, -2, 2, -100)
-	drawObject(0.75, CURRENT_DEPTH)
+	drawObject(ZOOM_VALUE, CURRENT_DEPTH)
 	renderText(CURRENT_DEPTH)
 	glutSwapBuffers()
-	glutTimerFunc(UPDATE_TIMER, display, value)
 
 def keyPressEvent(key, x, y):
 	global OBJECT_X_ANGLE
@@ -183,9 +182,12 @@ def keyPressEvent(key, x, y):
 		print('Program terminated successfully.')
 		exit(0)
 	elif key == b'a':
-		ZOOM_VALUE += ZOOM_INCREMENT
+		ZOOM_VALUE = min(1.0, 
+			ZOOM_VALUE + ZOOM_INCREMENT)
 	elif key == b's':
-		ZOOM_VALUE -= ZOOM_INCREMENT
+		ZOOM_VALUE = max(2.0*ZOOM_INCREMENT, 
+			ZOOM_VALUE - ZOOM_INCREMENT)
+	display(0)
 
 if __name__ == '__main__':
 	setup()
