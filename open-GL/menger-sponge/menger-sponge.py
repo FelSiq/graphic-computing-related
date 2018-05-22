@@ -1,13 +1,18 @@
-import sys
 from OpenGL.GL import *
 from OpenGL.GLU import *
 from OpenGL.GLUT import *
 
 WINDOW_SIZE_W=1080
 WINDOW_SIZE_H=640
-OBJECT_ANGLE=0
+OBJECT_X_ANGLE=0
+OBJECT_Y_ANGLE=0
+OBJECT_Z_ANGLE=0
 ROTATE_INCREMENT=1
-ROTATE_TIMER=30
+UPDATE_TIMER=30
+CURRENT_DEPTH=2
+MAX_DEPTH=5
+ZOOM_VALUE=0
+ZOOM_INCREMENT=1
 # 	 t, d, l, r, f, b
 DRAW_FACES_SEQ = [
 	(0, 1, 1, 0, 1, 0), # -x -y -z
@@ -41,12 +46,33 @@ def setup():
 	glClearColor(0, 0, 0, 0)
 
 def renderText(deepness):
-	text = 'Deepness:' + str(1+deepness)
+	text = 'Deepness: (' +\
+		str(1+deepness) +\
+		'/' + str(1+MAX_DEPTH) + ')' +\
+		'\nl: +x_angle' +\
+		'\nk: +y_angle' +\
+		'\nu: +z_angle' +\
+		'\nj: -x_angle' +\
+		'\ni: -y_angle' +\
+		'\no: -z_angle' +\
+		'\n+: +deepness' +\
+		'\n-: -deepness' +\
+		'\na: +zoom' +\
+		'\ns: -zoom' +\
+		'\nESC: exit'
 	glColor3f(0.75, 0.75, 0.1)
 	glLoadIdentity()
-	glRasterPos2f(-0.95, -0.95)
+	
+	yPos = -0.40
+	yInc = 32.0/WINDOW_SIZE_H
+	glRasterPos2f(-0.98, yPos)
 	for ch in text:
-		glutBitmapCharacter(GLUT_BITMAP_9_BY_15, ord(ch))
+		if ch != '\n':
+			glutBitmapCharacter(GLUT_BITMAP_9_BY_15, ord(ch))
+		else:
+			yPos -= yInc
+			glRasterPos2f(-0.98, yPos)
+
 
 # top, down, left, right, front, back
 def drawCube(edge, draw=(1, 1, 1, 1, 1, 1)):
@@ -113,47 +139,62 @@ def drawObject(edgeSize, recCallsNum, ti=0, tj=0, tk=0):
 							recCallsNum-1, 
 							ti+i, tj+j, tk+k)
 					else:
-						glRotatef(OBJECT_ANGLE, 1, 1, 1)
+						glRotatef(OBJECT_X_ANGLE, 1, 0, 0)
+						glRotatef(OBJECT_Y_ANGLE, 0, 1, 0)
+						glRotatef(OBJECT_Z_ANGLE, 0, 0, 1)
 						glTranslatef(ti+i, tj+j, tk+k)
 						drawCube(edgeSize, DRAW_FACES_SEQ[counter])
 						counter += 1
 
-def rotateObject(value):
-	global OBJECT_ANGLE
-	OBJECT_ANGLE += ROTATE_INCREMENT
-	OBJECT_ANGLE %= 360
-	display(value)
-	glutTimerFunc(ROTATE_TIMER, rotateObject, value)
-
-def display(recCallsNum=0):
+def display(value):
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT)
 	glLoadIdentity()
 	glOrtho(2, -2, 2, -2, 2, -100)
-	drawObject(0.75, recCallsNum)
-	renderText(recCallsNum)
+	drawObject(0.75, CURRENT_DEPTH)
+	renderText(CURRENT_DEPTH)
 	glutSwapBuffers()
+	glutTimerFunc(UPDATE_TIMER, display, value)
+
+def keyPressEvent(key, x, y):
+	global OBJECT_X_ANGLE
+	global OBJECT_Y_ANGLE
+	global OBJECT_Z_ANGLE
+	global ROTATE_INCREMENT
+	global CURRENT_DEPTH
+	global ZOOM_VALUE
+	global ZOOM_INCREMENT
+	if key == b'l':
+		OBJECT_X_ANGLE += ROTATE_INCREMENT
+	elif key == b'j':
+		OBJECT_X_ANGLE -= ROTATE_INCREMENT
+	elif key == b'k':
+		OBJECT_Y_ANGLE += ROTATE_INCREMENT
+	elif key == b'i':
+		OBJECT_Y_ANGLE -= ROTATE_INCREMENT
+	elif key == b'u':
+		OBJECT_Z_ANGLE += ROTATE_INCREMENT
+	elif key == b'o':
+		OBJECT_Z_ANGLE -= ROTATE_INCREMENT
+	elif key == b'+':
+		CURRENT_DEPTH = min(CURRENT_DEPTH+1, MAX_DEPTH)
+	elif key == b'-':
+		CURRENT_DEPTH = max(CURRENT_DEPTH-1, 0)
+	elif key == b'\x1b':
+		print('Program terminated successfully.')
+		exit(0)
+	elif key == b'a':
+		ZOOM_VALUE += ZOOM_INCREMENT
+	elif key == b's':
+		ZOOM_VALUE -= ZOOM_INCREMENT
 
 if __name__ == '__main__':
-	if len(sys.argv) < 2:
-		print('usage:', sys.argv[0], '< depth between 1 and 10 >')
-		exit(1)
-	try:
-		deepness = int(sys.argv[1])-1
-		if not (0 <= deepness <= 9):
-			raise Exception()
-	except:
-		print('Depth parameter must be a integer between 1 and 10.')
-		exit(2)
-
-	print('Started rendering process. This may take a while...')
 	setup()
 
-	if deepness > 3:
-		print('Warning: disabling rotation to improve performance.')
-		OBJECT_ANGLE=30
-		display(deepness)
-	else:
-		rotateObject(deepness)
+	OBJECT_X_ANGLE=30
+	OBJECT_Y_ANGLE=30
+	OBJECT_Z_ANGLE=30
+	glutKeyboardFunc(keyPressEvent)
+	display(0)
 
 	glutMainLoop()
 
