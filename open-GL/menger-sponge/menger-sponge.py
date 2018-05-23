@@ -7,12 +7,14 @@ WINDOW_SIZE_H=640
 OBJECT_X_ANGLE=0
 OBJECT_Y_ANGLE=0
 OBJECT_Z_ANGLE=0
-ROTATE_INCREMENT=1
+ROTATE_INCREMENT=3
 UPDATE_TIMER=30
 CURRENT_DEPTH=1
 MAX_DEPTH=5
 ZOOM_VALUE=0.75
 ZOOM_INCREMENT=0.025
+ENABLE_TIMER=True
+COLOR_SCHEMA=True
 # 	 t, d, l, r, f, b
 DRAW_FACES_SEQ = [
 	(0, 1, 1, 0, 1, 0), # -x -y -z
@@ -59,11 +61,12 @@ def renderText(deepness):
 		'\n-: -deepness' +\
 		'\na: +zoom' +\
 		'\ns: -zoom' +\
+		'\nd: toggle color' +\
 		'\nESC: exit'
 	glColor3f(0.75, 0.75, 0.1)
 	glLoadIdentity()
 	
-	yPos = -0.40
+	yPos = -0.30
 	yInc = 32.0/WINDOW_SIZE_H
 	glRasterPos2f(-0.98, yPos)
 	for ch in text:
@@ -125,14 +128,22 @@ def drawObject(edgeSize, recCallsNum, ti=0, tj=0, tk=0):
 	counter=0
 	tMatrix = glGetFloatv(GL_MODELVIEW_MATRIX)
 	shiftCoords = [-edgeSize, 0, edgeSize]
+
 	for i in shiftCoords:
 		for j in shiftCoords:
 			for k in shiftCoords:
 				if abs(i) + abs(j) + abs(k) >= 2.0*edgeSize:
-					glColor3f(
-						abs(i + ti),
-						abs(j + tj), 
-						abs(k + tk))
+					if COLOR_SCHEMA:
+						glColor3f(
+							abs(i + ti),
+							abs(j + tj), 
+							abs(k + tk))
+					else:
+						glColor3f(
+							1.0-abs(i + ti),
+							1.0-abs(j + tj), 
+							1.0-abs(k + tk))
+
 					glLoadMatrixf(tMatrix)
 					if recCallsNum:
 						drawObject(edgeSize/3, 
@@ -154,6 +165,9 @@ def display(value):
 	renderText(CURRENT_DEPTH)
 	glutSwapBuffers()
 
+	global ENABLE_TIMER
+	ENABLE_TIMER=True
+
 def keyPressEvent(key, x, y):
 	global OBJECT_X_ANGLE
 	global OBJECT_Y_ANGLE
@@ -162,6 +176,9 @@ def keyPressEvent(key, x, y):
 	global CURRENT_DEPTH
 	global ZOOM_VALUE
 	global ZOOM_INCREMENT
+	global ENABLE_TIMER
+	global COLOR_SCHEMA
+
 	if key == b'l':
 		OBJECT_X_ANGLE += ROTATE_INCREMENT
 	elif key == b'j':
@@ -187,7 +204,12 @@ def keyPressEvent(key, x, y):
 	elif key == b's':
 		ZOOM_VALUE = max(2.0*ZOOM_INCREMENT, 
 			ZOOM_VALUE - ZOOM_INCREMENT)
-	display(0)
+	elif key == b'd':
+		COLOR_SCHEMA = not COLOR_SCHEMA
+
+	if ENABLE_TIMER:
+		ENABLE_TIMER=False
+		glutTimerFunc(UPDATE_TIMER, display, 0)
 
 if __name__ == '__main__':
 	setup()
